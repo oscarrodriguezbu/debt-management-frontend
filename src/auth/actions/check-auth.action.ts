@@ -1,9 +1,9 @@
 import { userDebtApi } from '../../api/userDebtsApi';
 import type { AuthResponse } from '../interfaces/auth.response';
 
-export const checkAuthAction = async (): Promise<AuthResponse> => {
+export const checkAuthAction = async (): Promise<AuthResponse | null> => {
   const token = localStorage.getItem('token');
-  if (!token) throw new Error('No token found');
+  if (!token) return null;
 
   try {
     const { data } = await userDebtApi.get<AuthResponse>('/auth/check-status');

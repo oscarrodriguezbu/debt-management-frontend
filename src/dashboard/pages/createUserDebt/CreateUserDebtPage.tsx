@@ -3,7 +3,13 @@ import { useState } from "react";
 import { X, SaveAll } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@radix-ui/react-select";
 
 interface Product {
   id: string;
@@ -56,7 +62,7 @@ export const CreateUserDebtPage = () => {
               Cancell
             </Link>
           </Button>
-          <Button>
+          <Button className="cursor-pointer">
             <SaveAll className="w-4 h-4" />
             Save
           </Button>
@@ -80,6 +86,17 @@ export const CreateUserDebtPage = () => {
                     >
                       Creditor*
                     </label>
+
+                    {/* <Select value={isPaid === 'false' || isPaid === 'true' ? isPaid : 'false'} onValueChange={handleInputChange}>
+                      <SelectTrigger className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        <SelectValue placeholder="Select the debt status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="false">Outstanding debt</SelectItem>
+                        <SelectItem value="true">Debt paid</SelectItem>
+                      </SelectContent>
+                    </Select> */}
+
                     <select
                       id="creditor"
                       value={product.gender}

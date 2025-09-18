@@ -77,7 +77,7 @@ export const RegisterPage = () => {
                 </div>
                 <Input id="password" type="password" placeholder="Password" name="password" required />
               </div>
-              <Button type="submit" className="w-full" disabled={isPosting}>
+              <Button type="submit" className="w-full cursor-pointer" disabled={isPosting}>
                 Create Account
               </Button>
               <div className="text-center text-sm">

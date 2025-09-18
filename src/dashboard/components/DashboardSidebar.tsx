@@ -43,7 +43,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
         {!isCollapsed && <CustomLogo />}
         <button
           onClick={onToggle}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>

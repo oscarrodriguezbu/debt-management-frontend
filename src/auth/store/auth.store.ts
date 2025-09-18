@@ -1,11 +1,11 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import { loginAction } from '../actions/login.action';
-import { checkAuthAction } from '../actions/check-auth.action';
-import type { User } from '../../interfaces/user.interface';
-import { registerAction } from '../actions/register.action';
+import { loginAction } from "../actions/login.action";
+import { checkAuthAction } from "../actions/check-auth.action";
+import type { User } from "../../interfaces/user.interface";
+import { registerAction } from "../actions/register.action";
 
-type AuthStatus = 'authenticated' | 'not-authenticated' | 'checking';
+type AuthStatus = "authenticated" | "not-authenticated" | "checking";
 
 type AuthState = {
   // Properties
@@ -21,64 +21,73 @@ type AuthState = {
   checkAuthStatus: () => Promise<boolean>;
 };
 
+const notAuthenticated: Partial<AuthState> = {
+  user: null,
+  token: null,
+  authStatus: "not-authenticated",
+};
+
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   token: null,
-  authStatus: 'checking',
+  authStatus: "checking",
 
   login: async (email, password) => {
     try {
       const data = await loginAction(email, password);
-      localStorage.setItem('token', data.token);
+      localStorage.setItem("token", data.token);
 
-      set({ user: data.user, token: data.token, authStatus: 'authenticated' });
+      set({ user: data.user, token: data.token, authStatus: "authenticated" });
 
       return true;
     } catch (error) {
       console.log(error);
-      localStorage.removeItem('token');
-      set({ user: null, token: null, authStatus: 'not-authenticated' });
+      localStorage.removeItem("token");
+      set(notAuthenticated);
       return false;
     }
   },
 
   logout: () => {
-    localStorage.removeItem('token');
-    set({ user: null, token: null, authStatus: 'not-authenticated' });
+    localStorage.removeItem("token");
+    set(notAuthenticated);
   },
 
   register: async (name, email, password) => {
     try {
       const data = await registerAction(name, email, password);
-      localStorage.setItem('token', data.token);
+      localStorage.setItem("token", data.token);
 
-      set({ user: data.user, token: data.token, authStatus: 'authenticated' });
+      set({ user: data.user, token: data.token, authStatus: "authenticated" });
 
       return true;
     } catch (error) {
       console.log(error);
-      localStorage.removeItem('token');
-      set({ user: null, token: null, authStatus: 'not-authenticated' });
+      localStorage.removeItem("token");
+      set(notAuthenticated);
       return false;
     }
   },
 
   checkAuthStatus: async () => {
     try {
-      const { user, token } = await checkAuthAction();
+      const result = await checkAuthAction();
+      if (!result) {
+        set(notAuthenticated);
+        return false;
+      }
+
+      const { user, token } = result;
+
       set({
         user: user,
         token: token,
-        authStatus: 'authenticated',
+        authStatus: "authenticated",
       });
       return true;
     } catch (error) {
       console.log(error);
-      set({
-        user: undefined,
-        token: undefined,
-        authStatus: 'not-authenticated',
-      });
+      set(notAuthenticated);
 
       return false;
     }

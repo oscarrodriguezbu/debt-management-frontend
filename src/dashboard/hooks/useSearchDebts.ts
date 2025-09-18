@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getUserDebtsAction } from "../actions/get-user-debts.action"
 import { useSearchParams } from "react-router";
 
-export const useDebts = () => {
+export const useSearchDebts = () => {
     const [searchParams] = useSearchParams();
     const isPaid = searchParams.get('isPaid') || undefined;
 
@@ -12,6 +12,7 @@ export const useDebts = () => {
             { isPaid },
         ],
         queryFn: () => getUserDebtsAction({ isPaid }),
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 5,
+        enabled: !!isPaid
     })
 }

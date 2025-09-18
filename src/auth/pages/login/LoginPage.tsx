@@ -72,7 +72,7 @@ export const LoginPage = () => {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isPosting}>
+              <Button type="submit" className="w-full cursor-pointer" disabled={isPosting}>
                 Login
               </Button>
               <div className="text-center text-sm">
