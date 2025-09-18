@@ -1,68 +1,61 @@
 import { DashboardTitle } from "@/dashboard/components/DashboardTitle";
-import { useState } from "react";
 import { X, SaveAll } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
+import { Controller, useForm } from "react-hook-form";
 import {
   Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@radix-ui/react-select";
+} from "@/components/ui/select";
+import type { Debts } from "@/interfaces/debs.interface";
+import { cn } from "@/lib/utils";
+import { useSearchCreditors } from "@/auth/hooks/useSearchCreditos";
 
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  description: string;
-  slug: string;
-  stock: number;
-  sizes: string[];
-  gender: string;
-  tags: string[];
-  images: string[];
+const defaultValues = {
+  amount: undefined,
+  creditorId: undefined,
+  description: undefined,
 }
 
 export const CreateUserDebtPage = () => {
-  const [product, setProduct] = useState<Product>({
-    id: "376e23ed-df37-4f88-8f84-4561da5c5d46",
-    title: "Men's Raven Lightweight Hoodie",
-    price: 115,
-    description:
-      "Introducing the Tesla Raven Collection. The Men's Raven Lightweight Hoodie has a premium, relaxed silhouette made from a sustainable bamboo cotton blend. The hoodie features subtle thermoplastic polyurethane Tesla logos across the chest and on the sleeve with a french terry interior for versatility in any season. Made from 70% bamboo and 30% cotton.",
-    slug: "men_raven_lightweight_hoodie",
-    stock: 10,
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    gender: "men",
-    tags: ["hoodie"],
-    images: [
-      "https://placehold.co/250x250",
-      "https://placehold.co/250x250",
-      "https://placehold.co/250x250",
-      "https://placehold.co/250x250",
-    ],
+  const { data: creditors, isLoading, isError } = useSearchCreditors();
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    setValue,
+    watch,
+  } = useForm<Debts>({
+    defaultValues,
   });
 
-  const handleInputChange = (field: keyof Product, value: string | number) => {
-    setProduct((prev) => ({ ...prev, [field]: value }));
+  const onSubmit = (data: Debts) => {
+    console.log("Form data:", data);
   };
 
   return (
-    <>
-      <div className="flex justify-between items-center">
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className=" grid grid-cols-1 md:grid-cols-2 justify-between items-center">
         <DashboardTitle
           title="Create Debt"
           subtitle="Here you can create a new debt."
         />
-        <div className="flex justify-end mb-10 gap-4">
+        <div className="flex md:justify-end mb-10 gap-4">
           <Button variant="outline">
             <Link to="/admin/products" className="flex items-center gap-2">
               <X className="w-4 h-4" />
               Cancell
             </Link>
           </Button>
-          <Button className="cursor-pointer">
+          <Button className="cursor-pointer" type="submit">
             <SaveAll className="w-4 h-4" />
             Save
           </Button>
@@ -86,30 +79,38 @@ export const CreateUserDebtPage = () => {
                     >
                       Creditor*
                     </label>
-
-                    {/* <Select value={isPaid === 'false' || isPaid === 'true' ? isPaid : 'false'} onValueChange={handleInputChange}>
-                      <SelectTrigger className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                        <SelectValue placeholder="Select the debt status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="false">Outstanding debt</SelectItem>
-                        <SelectItem value="true">Debt paid</SelectItem>
-                      </SelectContent>
-                    </Select> */}
-
-                    <select
-                      id="creditor"
-                      value={product.gender}
-                      onChange={(e) =>
-                        handleInputChange("gender", e.target.value)
-                      }
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    >
-                      <option value="men">Hombre</option>
-                      <option value="women">Mujer</option>
-                      <option value="unisex">Unisex</option>
-                      <option value="kids">Niño</option>
-                    </select>
+                    <Controller
+                      name="creditorId"
+                      control={control}
+                      rules={{ required: "The debt state is required" }}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger
+                            className={cn(
+                              "w-full px-4 py-6 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+                              {
+                                "border-red-500": errors.creditorId,
+                              }
+                            )}
+                          >
+                            <SelectValue placeholder="Select the debt status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Creditors</SelectLabel>
+                              {
+                                !isLoading && creditors && creditors.length > 0 &&
+                                creditors.map((c) => (
+                                  <SelectItem key={c.id} value={String(c.id)}>
+                                    {c.name}
+                                  </SelectItem>
+                                ))
+                              }
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
                   <div>
                     <label
@@ -119,18 +120,22 @@ export const CreateUserDebtPage = () => {
                       Amount ($)*
                     </label>
                     <input
-                      id="amount"
+                      {...register("amount", {
+                        required: true,
+                        min: 1,
+                      })}
+                      min={1}
                       type="number"
-                      value={product.price}
-                      onChange={(e) =>
-                        handleInputChange("price", parseFloat(e.target.value))
-                      }
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                      placeholder="Precio del producto"
+                      className={cn(
+                        "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+                        {
+                          "border-red-500": errors.amount,
+                        }
+                      )}
+                      placeholder="Debt Value"
                     />
                   </div>
                 </div>
-
                 <div>
                   <label
                     htmlFor="description"
@@ -139,14 +144,15 @@ export const CreateUserDebtPage = () => {
                     Description
                   </label>
                   <textarea
-                    id="description"
-                    value={product.description}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
-                    }
+                    {...register("description", { maxLength: 300 })}
                     rows={5}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-                    placeholder="Descripción del producto"
+                    className={cn(
+                      "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+                      {
+                        "border-red-500": errors.description,
+                      }
+                    )}
+                    placeholder="Debt Description"
                   />
                 </div>
               </div>
@@ -154,6 +160,6 @@ export const CreateUserDebtPage = () => {
           </div>
         </div>
       </div>
-    </>
+    </form>
   );
 };

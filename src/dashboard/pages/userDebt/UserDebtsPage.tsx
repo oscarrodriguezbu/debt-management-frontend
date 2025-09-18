@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router";
 import { currencyFormatter } from "@/components/lib/currency-formatter";
-import { MessageCircleQuestionMark } from "lucide-react";
+import { MessageCircleQuestionMark, CircleAlert } from "lucide-react";
 import { DashboardTitle } from "@/dashboard/components/DashboardTitle";
 import { CustomLoading } from "@/components/custom/CustomLoading";
 import { useSearchDebts } from "@/dashboard/hooks/useSearchDebts";
@@ -15,7 +15,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -25,6 +27,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { truncateText } from "@/components/lib/truncateText";
+import { cn } from "@/lib/utils";
+import { toLocalDateString } from "@/components/lib/toLocalDateString";
 
 export const UserDebtsPage = () => {
   const { data, isLoading } = useSearchDebts();
@@ -50,8 +60,11 @@ export const UserDebtsPage = () => {
             <SelectValue placeholder="Select the debt status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="false">Outstanding debt</SelectItem>
-            <SelectItem value="true">Debt paid</SelectItem>
+            <SelectGroup>
+              <SelectLabel>Debt Status</SelectLabel>
+              <SelectItem value="false">Outstanding debt</SelectItem>
+              <SelectItem value="true">Debt paid</SelectItem>
+            </SelectGroup>
           </SelectContent>
         </Select>
       </div>
@@ -64,6 +77,9 @@ export const UserDebtsPage = () => {
             <TableRow>
               <TableHead className="w-[100px] px-4">Creditor Name</TableHead>
               <TableHead className="px-4">Email</TableHead>
+              <TableHead className="px-4">Description</TableHead>
+              <TableHead className="px-4">Created Date</TableHead>
+              <TableHead className="px-4">Updated Date</TableHead>
               <TableHead className="text-right px-4">Amount</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,41 +88,66 @@ export const UserDebtsPage = () => {
               <TableRow key={debt.id}>
                 <TableCell className="px-4">{debt.creditor.name}</TableCell>
                 <TableCell className="px-4">{debt.creditor.email}</TableCell>
+                <TableCell className="px-4" >
+                  <Popover >
+                    <PopoverTrigger asChild>
+                      <div
+                        className={cn(
+                          "flex items-center gap-2.5 w-full h-full",
+                          { "cursor-pointer": debt.description, }
+                        )}>
+                        {debt.description && <CircleAlert size={15} />}
+                        <span>
+                          {truncateText(debt.description)}
+                        </span>
+                      </div>
+                    </PopoverTrigger>
+                    {
+                      debt.description &&
+                      <PopoverContent>{debt.description}</PopoverContent>
+                    }
+                  </Popover>
+                </TableCell>
+                <TableCell className="px-4">{toLocalDateString(debt.createdAt)}</TableCell>
+                <TableCell className="px-4">{toLocalDateString(debt.updatedAt)}</TableCell>
+
                 <TableCell className="text-right px-4">
                   {currencyFormatter(debt.amount)}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </Table >
       )}
 
-      {!isLoading && (!data || data.length === 0) && (
-        <div>
-          <Card className="w-[600px]">
-            <CardHeader className="flex gap-6 items-center justify-center">
-              <img
-                src="./src/assets/makima.png"
-                alt="Card content"
-                className="w-[300px] rounded-md object-cover object-[center_38%] aspect-5/6"
-              />
-              <div className="flex flex-col gap-6 items-center justify-center">
-                <MessageCircleQuestionMark
-                  size={50}
-                  className="flex-shrink-0"
+      {
+        !isLoading && (!data || data.length === 0) && (
+          <div>
+            <Card className="w-[600px]">
+              <CardHeader className="flex gap-6 items-center justify-center">
+                <img
+                  src="./src/assets/makima.png"
+                  alt="Card content"
+                  className="w-[300px] rounded-md object-cover object-[center_38%] aspect-5/6"
                 />
-                <CardTitle className="mb-3">
-                  There are no debts to show
-                </CardTitle>
-                <CardDescription>
-                  Life hack: If you don't owe money, borrow some. If you already
-                  do, pay it back. Stop being stingy.
-                </CardDescription>
-              </div>
-            </CardHeader>
-          </Card>
-        </div>
-      )}
+                <div className="flex flex-col gap-6 items-center justify-center">
+                  <MessageCircleQuestionMark
+                    size={50}
+                    className="flex-shrink-0"
+                  />
+                  <CardTitle className="mb-3">
+                    There are no debts to show
+                  </CardTitle>
+                  <CardDescription>
+                    Life hack: If you don't owe money, borrow some. If you already
+                    do, pay it back. Stop being stingy.
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+          </div>
+        )
+      }
     </>
   );
 };
