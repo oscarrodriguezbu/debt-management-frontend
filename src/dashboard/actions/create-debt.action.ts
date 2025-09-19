@@ -7,7 +7,7 @@ export const createDebAction = async (
   description: string,
 ): Promise<DebtsResponse> => {
   try {
-    const { data } = await userDebtApi.post<DebtsResponse>('/auth/register', {
+    const { data } = await userDebtApi.post<DebtsResponse>('/debts', {
       amount,
       creditorId,
       description,

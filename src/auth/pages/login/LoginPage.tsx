@@ -85,9 +85,9 @@ export const LoginPage = () => {
           </form>
           <div className="relative hidden bg-muted md:block">
             <img
-              src="/placeholder.svg"
+              src="./src/assets/login-logo.jpeg"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover object-[center_39%] dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>

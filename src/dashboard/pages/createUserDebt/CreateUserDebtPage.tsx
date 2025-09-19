@@ -1,8 +1,9 @@
-import { DashboardTitle } from "@/dashboard/components/DashboardTitle";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { X, SaveAll } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
-import { Controller, useForm } from "react-hook-form";
+import { DashboardTitle } from "@/dashboard/components/DashboardTitle";
+import { useSearchCreditors } from "@/auth/hooks/useSearchCreditors";
 import {
   Select,
   SelectContent,
@@ -12,15 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Debts } from "@/interfaces/debs.interface";
 import { cn } from "@/lib/utils";
-import { useSearchCreditors } from "@/auth/hooks/useSearchCreditos";
+import { toast } from "sonner";
+import type { Debts } from "@/interfaces/debs.interface";
 
 const defaultValues = {
   amount: undefined,
   creditorId: undefined,
   description: undefined,
-}
+};
 
 export const CreateUserDebtPage = () => {
   const { data: creditors, isLoading, isError } = useSearchCreditors();
@@ -30,12 +31,16 @@ export const CreateUserDebtPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
-    setValue,
-    watch,
+    reset,
   } = useForm<Debts>({
     defaultValues,
   });
+
+  useEffect(() => {
+    if (isError) {
+      toast.error("There was a problem loading users.");
+    }
+  }, [isError]);
 
   const onSubmit = (data: Debts) => {
     console.log("Form data:", data);
@@ -49,11 +54,14 @@ export const CreateUserDebtPage = () => {
           subtitle="Here you can create a new debt."
         />
         <div className="flex md:justify-end mb-10 gap-4">
-          <Button variant="outline">
-            <Link to="/admin/products" className="flex items-center gap-2">
-              <X className="w-4 h-4" />
-              Cancell
-            </Link>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => reset()}
+          >
+            <X className="w-4 h-4" />
+            Cancell
           </Button>
           <Button className="cursor-pointer" type="submit">
             <SaveAll className="w-4 h-4" />
@@ -84,10 +92,13 @@ export const CreateUserDebtPage = () => {
                       control={control}
                       rules={{ required: "The debt state is required" }}
                       render={({ field }) => (
-                        <Select onValueChange={field.onChange}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ? field.value?.toString() : ""}
+                        >
                           <SelectTrigger
                             className={cn(
-                              "w-full px-4 py-6 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+                              "w-full px-4 py-6 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-transparent transition-all duration-200",
                               {
                                 "border-red-500": errors.creditorId,
                               }
@@ -98,42 +109,55 @@ export const CreateUserDebtPage = () => {
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>Creditors</SelectLabel>
-                              {
-                                !isLoading && creditors && creditors.length > 0 &&
+                              {!isLoading &&
+                                creditors &&
+                                creditors.length > 0 &&
                                 creditors.map((c) => (
                                   <SelectItem key={c.id} value={String(c.id)}>
                                     {c.name}
                                   </SelectItem>
-                                ))
-                              }
+                                ))}
                             </SelectGroup>
                           </SelectContent>
                         </Select>
                       )}
                     />
+                    {errors.creditorId && (
+                      <p className="text-red-500 text-sm">
+                        {errors.creditorId.message}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label
                       htmlFor="creditor"
                       className="block text-sm font-medium text-slate-700 mb-2"
                     >
-                      Amount ($)*
+                      Amount (&yen;)*
                     </label>
                     <input
                       {...register("amount", {
-                        required: true,
-                        min: 1,
+                        required: "The amount field is required",
+                        min: {
+                          value: 1,
+                          message: "The amount field must be greater than 0",
+                        },
                       })}
                       min={1}
                       type="number"
                       className={cn(
-                        "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+                        "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-transparent focus-visible:outline-none transition-all duration-200",
                         {
                           "border-red-500": errors.amount,
                         }
                       )}
                       placeholder="Debt Value"
                     />
+                    {errors.amount && (
+                      <p className="text-red-500 text-sm">
+                        {errors.amount.message}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -144,16 +168,27 @@ export const CreateUserDebtPage = () => {
                     Description
                   </label>
                   <textarea
-                    {...register("description", { maxLength: 300 })}
+                    {...register("description", {
+                      maxLength: {
+                        value: 300,
+                        message:
+                          "The description field must not have more than 300 characters",
+                      },
+                    })}
                     rows={5}
                     className={cn(
-                      "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+                      "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-transparent focus-visible:outline-none transition-all duration-200",
                       {
                         "border-red-500": errors.description,
                       }
                     )}
                     placeholder="Debt Description"
                   />
+                  {errors.description && (
+                    <p className="text-red-500 text-sm">
+                      {errors.description.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

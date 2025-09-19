@@ -4,6 +4,9 @@ import { useAuthStore } from '../../auth/store/auth.store';
 
 export const AuthenticatedRoute = ({ children }: PropsWithChildren) => {
   const { authStatus } = useAuthStore();
+  //todo: quitar logs
+  console.log('AuthenticatedRoute ', authStatus);
+
   
   if (authStatus === 'checking') return null;
 
@@ -14,6 +17,9 @@ export const AuthenticatedRoute = ({ children }: PropsWithChildren) => {
 
 export const NotAuthenticatedRoute = ({ children }: PropsWithChildren) => {
   const { authStatus } = useAuthStore();
+  //todo: quitar logs
+  console.log('NotAuthenticatedRoute ', authStatus);
+
   
   if (authStatus === 'checking') return null;
 

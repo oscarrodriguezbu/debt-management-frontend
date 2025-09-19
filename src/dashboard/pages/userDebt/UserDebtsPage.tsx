@@ -56,7 +56,7 @@ export const UserDebtsPage = () => {
 
       <div className="mb-10">
         <Select value={isPaid} onValueChange={handleInputChange}>
-          <SelectTrigger className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+          <SelectTrigger className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-transparent transition-all duration-200">
             <SelectValue placeholder="Select the debt status" />
           </SelectTrigger>
           <SelectContent>
@@ -123,12 +123,12 @@ export const UserDebtsPage = () => {
       {
         !isLoading && (!data || data.length === 0) && (
           <div>
-            <Card className="w-[600px]">
+            <Card className="w-[700px]">
               <CardHeader className="flex gap-6 items-center justify-center">
                 <img
-                  src="./src/assets/makima.png"
+                  src="./src/assets/hot-debt.png"
                   alt="Card content"
-                  className="w-[300px] rounded-md object-cover object-[center_38%] aspect-5/6"
+                  className="w-[400px] rounded-md object-cover object-[center_38%] aspect-7/6"
                 />
                 <div className="flex flex-col gap-6 items-center justify-center">
                   <MessageCircleQuestionMark
