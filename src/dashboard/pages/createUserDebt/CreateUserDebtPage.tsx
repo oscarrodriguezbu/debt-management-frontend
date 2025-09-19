@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import type { Debts } from "@/interfaces/debs.interface";
+import type { Debt } from "@/interfaces/debs.interface";
+import { useCreateDebt } from "@/dashboard/hooks/useCreateDebt";
+import { useNavigate } from "react-router";
 
 const defaultValues = {
   amount: undefined,
@@ -24,7 +26,9 @@ const defaultValues = {
 };
 
 export const CreateUserDebtPage = () => {
+  const navigate = useNavigate();
   const { data: creditors, isLoading, isError } = useSearchCreditors();
+  const { mutateAsync, isPending } = useCreateDebt();
 
   const {
     control,
@@ -32,7 +36,7 @@ export const CreateUserDebtPage = () => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<Debts>({
+  } = useForm<Debt>({
     defaultValues,
   });
 
@@ -42,8 +46,12 @@ export const CreateUserDebtPage = () => {
     }
   }, [isError]);
 
-  const onSubmit = (data: Debts) => {
-    console.log("Form data:", data);
+  const onSubmit = async (data: Debt) => {
+    await mutateAsync(data, {
+      onSuccess: () => {
+        navigate(`/debts`);
+      },
+    });
   };
 
   return (
@@ -59,11 +67,12 @@ export const CreateUserDebtPage = () => {
             variant="outline"
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => reset()}
+            disabled={isPending}
           >
             <X className="w-4 h-4" />
             Cancell
           </Button>
-          <Button className="cursor-pointer" type="submit">
+          <Button className="cursor-pointer" type="submit" disabled={isPending}>
             <SaveAll className="w-4 h-4" />
             Save
           </Button>
@@ -173,6 +182,12 @@ export const CreateUserDebtPage = () => {
                         value: 300,
                         message:
                           "The description field must not have more than 300 characters",
+                      },
+                      validate: (value) => {
+                        if (value && value.trim().length === 0) {
+                          return "The description field cannot consist only of spaces or line breaks";
+                        }
+                        return true;
                       },
                     })}
                     rows={5}
