@@ -4,6 +4,8 @@ import { loginAction } from "../actions/login.action";
 import { checkAuthAction } from "../actions/check-auth.action";
 import type { User } from "../../interfaces/user.interface";
 import { registerAction } from "../actions/register.action";
+import { toast } from "sonner";
+import type { AxiosError } from "axios";
 
 type AuthStatus = "authenticated" | "not-authenticated" | "checking";
 
@@ -17,8 +19,15 @@ type AuthState = {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-
   checkAuthStatus: () => Promise<boolean>;
+};
+
+const handleAuthError = (err: unknown, set: any) => {
+  const error = err as AxiosError<{ error: string }>;
+  toast.error(error.message);
+  localStorage.removeItem("token");
+  set(notAuthenticated);
+  return false;
 };
 
 const notAuthenticated: Partial<AuthState> = {
@@ -40,11 +49,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
       set({ user: data.user, token: data.token, authStatus: "authenticated" });
 
       return true;
-    } catch (error) {
-      console.log(error);
-      localStorage.removeItem("token");
-      set(notAuthenticated);
-      return false;
+    } catch (err) {
+      return handleAuthError(err, set);
     }
   },
 
@@ -61,11 +67,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
       set({ user: data.user, token: data.token, authStatus: "authenticated" });
 
       return true;
-    } catch (error) {
-      console.log(error);
-      localStorage.removeItem("token");
-      set(notAuthenticated);
-      return false;
+    } catch (err) {
+      return handleAuthError(err, set);
     }
   },
 
@@ -85,11 +88,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
         authStatus: "authenticated",
       });
       return true;
-    } catch (error) {
-      console.log(error);
-      set(notAuthenticated);
-
-      return false;
+    } catch (err) {
+      return handleAuthError(err, set);
     }
   },
 }));

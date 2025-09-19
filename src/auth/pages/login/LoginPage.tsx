@@ -6,7 +6,6 @@ import { CustomLogo } from "@/components/custom/CustomLogo";
 import { Link, useNavigate } from "react-router";
 import { useState, type FormEvent } from "react";
 import { useAuthStore } from "@/auth/store/auth.store";
-import { toast } from "sonner";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -27,8 +26,6 @@ export const LoginPage = () => {
       navigate("/debts");
       return;
     }
-
-    toast.error('Invalid email and/or password');
     setIsPosting(false);
   };
 

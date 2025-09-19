@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CustomLogo } from "@/components/custom/CustomLogo";
 import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
 import { useAuthStore } from "@/auth/store/auth.store";
 
 export const RegisterPage = () => {
@@ -29,7 +28,6 @@ export const RegisterPage = () => {
       return;
     }
 
-    toast.error('Invalid email and/or password');
     setIsPosting(false);
   };
 

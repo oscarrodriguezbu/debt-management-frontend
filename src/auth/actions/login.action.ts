@@ -1,3 +1,4 @@
+import type { AxiosError } from 'axios';
 import { userDebtApi } from '../../api/userDebtsApi';
 import type { AuthResponse } from '../interfaces/auth.response';
 
@@ -12,8 +13,8 @@ export const loginAction = async (
     });
 
     return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
+  } catch (err) {
+    const error = err as AxiosError<{ error: string }>;
+    throw new Error(error.response?.data?.error || error.message);
   }
 };
