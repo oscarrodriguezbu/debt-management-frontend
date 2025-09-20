@@ -31,16 +31,26 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 import { truncateText } from "@/components/lib/truncateText";
 import { cn } from "@/lib/utils";
 import { toLocalDateString } from "@/components/lib/toLocalDateString";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import noDebtsLogo from '../../../assets/hot-debt.png';
+
 
 export const UserDebtsPage = () => {
-  const { data, isLoading } = useSearchDebts();
+  const { data, isLoading, isError, error } = useSearchDebts();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const isPaid = searchParams.get("isPaid") ?? "";
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(error?.message || "Error loading debt");
+    }
+  }, [isError, error]);
 
   const handleInputChange = (value: string) => {
     searchParams.set("isPaid", value);
@@ -88,28 +98,30 @@ export const UserDebtsPage = () => {
               <TableRow key={debt.id}>
                 <TableCell className="px-4">{debt.creditor.name}</TableCell>
                 <TableCell className="px-4">{debt.creditor.email}</TableCell>
-                <TableCell className="px-4" >
-                  <Popover >
+                <TableCell className="px-4">
+                  <Popover>
                     <PopoverTrigger asChild>
                       <div
                         className={cn(
                           "flex items-center gap-2.5 w-full h-full",
-                          { "cursor-pointer": debt.description, }
-                        )}>
+                          { "cursor-pointer": debt.description }
+                        )}
+                      >
                         {debt.description && <CircleAlert size={15} />}
-                        <span>
-                          {truncateText(debt.description)}
-                        </span>
+                        <span>{truncateText(debt.description)}</span>
                       </div>
                     </PopoverTrigger>
-                    {
-                      debt.description &&
+                    {debt.description && (
                       <PopoverContent>{debt.description}</PopoverContent>
-                    }
+                    )}
                   </Popover>
                 </TableCell>
-                <TableCell className="px-4">{toLocalDateString(debt.createdAt)}</TableCell>
-                <TableCell className="px-4">{toLocalDateString(debt.updatedAt)}</TableCell>
+                <TableCell className="px-4">
+                  {toLocalDateString(debt.createdAt)}
+                </TableCell>
+                <TableCell className="px-4">
+                  {toLocalDateString(debt.updatedAt)}
+                </TableCell>
 
                 <TableCell className="text-right px-4">
                   {currencyFormatter(debt.amount)}
@@ -117,37 +129,35 @@ export const UserDebtsPage = () => {
               </TableRow>
             ))}
           </TableBody>
-        </Table >
+        </Table>
       )}
 
-      {
-        !isLoading && (!data || data.length === 0) && (
-          <div>
-            <Card className="w-[700px]">
-              <CardHeader className="flex gap-6 items-center justify-center">
-                <img
-                  src="./src/assets/hot-debt.png"
-                  alt="Card content"
-                  className="w-[400px] rounded-md object-cover object-[center_38%] aspect-7/6"
+      {!isLoading && (!data || data.length === 0) && (
+        <div>
+          <Card className="w-[700px]">
+            <CardHeader className="flex gap-6 items-center justify-center">
+              <img
+                src={noDebtsLogo}
+                alt="Card content"
+                className="w-[400px] rounded-md object-cover object-[center_38%] aspect-7/6"
+              />
+              <div className="flex flex-col gap-6 items-center justify-center">
+                <MessageCircleQuestionMark
+                  size={50}
+                  className="flex-shrink-0"
                 />
-                <div className="flex flex-col gap-6 items-center justify-center">
-                  <MessageCircleQuestionMark
-                    size={50}
-                    className="flex-shrink-0"
-                  />
-                  <CardTitle className="mb-3">
-                    There are no debts to show
-                  </CardTitle>
-                  <CardDescription>
-                    Life hack: If you don't owe money, borrow some. If you already
-                    do, pay it back. Stop being stingy.
-                  </CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
-        )
-      }
+                <CardTitle className="mb-3">
+                  There are no debts to show
+                </CardTitle>
+                <CardDescription>
+                  Life hack: If you don't owe money, borrow some. If you already
+                  do, pay it back. Stop being stingy.
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
+        </div>
+      )}
     </>
   );
 };

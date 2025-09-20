@@ -27,7 +27,7 @@ const defaultValues = {
 
 export const CreateUserDebtPage = () => {
   const navigate = useNavigate();
-  const { data: creditors, isLoading, isError } = useSearchCreditors();
+  const { data: creditors, isLoading, isError, error } = useSearchCreditors();
   const { mutateAsync, isPending } = useCreateDebt();
 
   const {
@@ -44,7 +44,7 @@ export const CreateUserDebtPage = () => {
     if (isError) {
       toast.error("There was a problem loading users.");
     }
-  }, [isError]);
+  }, [isError, error]);
 
   const onSubmit = async (data: Debt) => {
     await mutateAsync(data, {

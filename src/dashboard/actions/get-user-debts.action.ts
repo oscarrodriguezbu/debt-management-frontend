@@ -26,4 +26,3 @@ export const getUserDebtsAction = async (
     throw new Error(error.response?.data?.error || error.message);
   }
 };
-//todo ajustar mensajes de error para obtener usuarios y para la consulta de las deudas

@@ -6,6 +6,7 @@ import { CustomLogo } from "@/components/custom/CustomLogo";
 import { Link, useNavigate } from "react-router";
 import { useState, type FormEvent } from "react";
 import { useAuthStore } from "@/auth/store/auth.store";
+import loginLogo from '../../../assets/login-logo.jpeg';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ export const LoginPage = () => {
           </form>
           <div className="relative hidden bg-muted md:block">
             <img
-              src="./src/assets/login-logo.jpeg"
+              src={loginLogo}
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover object-[center_39%] dark:brightness-[0.2] dark:grayscale"
             />
